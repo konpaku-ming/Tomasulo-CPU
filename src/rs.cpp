@@ -24,4 +24,6 @@ namespace cpu_sim {
     now_rs.clear();
     next_rs.clear();
   }
+
+  ReservationStation rs;
 }

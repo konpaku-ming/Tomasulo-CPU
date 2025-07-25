@@ -45,7 +45,7 @@ namespace cpu_sim {
 
     T &operator[](int index) {
       if (!flag_[index]) {
-        std::cerr << "invalid index!" << std::endl;
+        std::cerr << "error in Arr: invalid index!" << std::endl;
         assert(false);
       }
       return data_[index];
@@ -190,7 +190,7 @@ namespace cpu_sim {
 
     T &operator[](int index) {
       if (index < 0 || index >= Size) {
-        std::cerr << "invalid index!" << std::endl;
+        std::cerr << "error in CirQue: invalid index!" << std::endl;
         assert(false);
       }
       return data_[index];

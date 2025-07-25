@@ -8,10 +8,10 @@ namespace cpu_sim {
   struct RSNode {
     bool busy = false;
     Inst inst;
-    int vj = 0, vk = 0;
+    u32 vj = 0, vk = 0;
     int qj = -1, qk = -1;
-    int a = 0;
-    int dest = -1;
+    u32 a = 0;
+    int rob_dest = -1;
     bool ready = false;
   };
 

@@ -18,6 +18,8 @@ namespace cpu_sim {
     Inst inst;
     i32 dest = -1;
     i32 value = 0; //计算值
+    bool busy = false; //是否在计算中
+    int progress = 0; //进度 0~3 用于处理某些沟槽的3周期指令
 
     ROBNode();
 
@@ -36,8 +38,10 @@ namespace cpu_sim {
     void upd();
 
     void clear();
+
+  private:
+    void issue(int index);
   };
 }
-
 
 #endif //ROB_H

@@ -12,6 +12,8 @@ namespace cpu_sim {
 
     void upd();
 
+    void clear();
+
     void fetch();
 
   private:

@@ -15,6 +15,11 @@ namespace cpu_sim {
     now_freeze_ = next_freeze_;
   }
 
+  void Decoder::clear() {
+    now_freeze_ = false;
+    next_freeze_ = false;
+  }
+
   void Decoder::fetch() {
     if (now_freeze_)return;
     if (rob.next_rob.full())return;

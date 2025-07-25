@@ -6,8 +6,7 @@
 namespace cpu_sim {
   struct RegNode {
     u32 val_ = 0;
-    bool busy_ = false;
-    int Q_ = -1;
+    int dep_ = -1; //依赖
   };
 
   class Register {
