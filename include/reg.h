@@ -3,22 +3,24 @@
 
 #include "../include/utils.h"
 
-struct RegNode {
-  u32 val_ = 0;
-  bool busy_ = false;
-  int Q_ = -1;
-};
+namespace cpu_sim {
+  struct RegNode {
+    u32 val_ = 0;
+    bool busy_ = false;
+    int Q_ = -1;
+  };
 
-class Register {
-public:
-  RegNode now_reg[kRegSize];
-  RegNode next_reg[kRegSize];
+  class Register {
+  public:
+    RegNode now_reg[kRegSize];
+    RegNode next_reg[kRegSize];
 
-  Register();
+    Register();
 
-  ~Register();
+    ~Register();
 
-  void upd();
-};
+    void upd();
+  };
+}
 
 #endif //REG_H

@@ -8,4 +8,7 @@ include_directories(.)
 add_executable(code
         src/main.cpp
         src/reg.cpp
-        src/rs.cpp)
+        src/rs.cpp
+        src/rob.cpp
+        src/decoder.cpp
+        src/mem.cpp)
