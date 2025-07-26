@@ -13,6 +13,7 @@ namespace cpu_sim {
     status = kIssue;
     dest = i.rd;
     if (i.rd == 0)dest = -1;
+    progress = 0;
   }
 
   ReorderBuffer::ReorderBuffer() = default;
@@ -55,6 +56,9 @@ namespace cpu_sim {
             if (next_rob[dep].status == kWrite)rs_node.vj = next_rob[dep].value;
             else rs_node.qj = dep;
           }
+        }
+        if (node.inst.op == kAuipc || node.inst.op == kJal) {
+          rs_node.vj = node.inst.pc; //特殊处理，将PC作为rs1值处理
         }
         //处理rs2
         if (node.inst.rs2 != -1) {

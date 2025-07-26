@@ -10,7 +10,7 @@ namespace cpu_sim {
     Inst inst;
     u32 vj = 0, vk = 0;
     int qj = -1, qk = -1;
-    u32 a = 0;
+    i32 a = 0;
     int rob_dest = -1;
     bool ready = false;
   };
@@ -28,7 +28,7 @@ namespace cpu_sim {
 
     void clear();
 
-    void execute();
+    void run();
   };
 }
 
