@@ -38,6 +38,7 @@ namespace cpu_sim {
         //TODO: Predictor
         break;
       case kJalr:
+      //需先计算出新pc再继续decode
       case kHalt:
         next_freeze_ = true;
         next_pc = now_pc;
@@ -48,4 +49,10 @@ namespace cpu_sim {
     //进入ROB
     rob.next_rob.push(ROBNode(inst));
   }
+
+  void Decoder::unfreeze() {
+    next_freeze_ = false;
+  }
+
+  Decoder decoder;
 }

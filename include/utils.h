@@ -16,9 +16,10 @@ namespace cpu_sim {
 
   constexpr int kLSBSize = 32;
 
+  extern bool halt;
   extern u32 now_pc;
   extern u32 next_pc;
-  extern u32 real_pc;
+  extern u32 exec_pc;
 
   template<class T, int Size>
   class Arr {

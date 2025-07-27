@@ -1,7 +1,7 @@
 #include "../include/rob.h"
-
-#include <include/lsb.h>
-
+#include "../include/decoder.h"
+#include "../include/lsb.h"
+#include "../include/mem.h"
 #include "../include/reg.h"
 #include "../include/rs.h"
 
@@ -9,6 +9,8 @@ namespace cpu_sim {
   extern Register reg;
   extern ReservationStation rs;
   extern LoadStoreBuffer lsb;
+  extern Decoder decoder;
+  extern Memory memory;
 
   ROBNode::ROBNode() = default;
 
@@ -116,6 +118,73 @@ namespace cpu_sim {
         i = (i + 1) % kLSBSize;
       }
     }
+  }
+
+  void ReorderBuffer::commit() {
+    const auto cur = now_rob.front();
+    switch (cur.inst.op) {
+      case kHalt:
+        halt = true;
+        return;
+      case kJal:
+        exec_pc = cur.pos;
+        if (cur.dest != -1) {
+          reg.next_reg[cur.dest].dep_ = -1;
+          reg.next_reg[cur.dest].val_ = cur.value;
+        }
+        break;
+      case kJalr:
+        exec_pc = next_pc = cur.pos;
+        decoder.unfreeze();
+        if (cur.dest != -1) {
+          reg.next_reg[cur.dest].dep_ = -1;
+          reg.next_reg[cur.dest].val_ = cur.value;
+        }
+        break;
+      case kBeq:
+      case kBge:
+      case kBgeu:
+      case kBlt:
+      case kBltu:
+      case kBne:
+        if (cur.inst.predict != static_cast<bool>(cur.value)) {
+          //清空，回退状态
+          if (cur.value) {
+            exec_pc = next_pc = cur.inst.pc + cur.inst.imm;
+          } else {
+            exec_pc = next_pc = cur.inst.pc + 4;
+          }
+          decoder.clear();
+          reg.clear();
+          rs.clear();
+          lsb.clear();
+          this->clear();
+        }
+        return;
+      case kSb:
+        exec_pc = cur.inst.pc + 4;
+        memory.store(cur.value, cur.pos, 1);
+        lsb.unfreeze();
+        break;
+      case kSh:
+        exec_pc = cur.inst.pc + 4;
+        memory.store(cur.value, cur.pos, 2);
+        lsb.unfreeze();
+        break;
+      case kSw:
+        exec_pc = cur.inst.pc + 4;
+        memory.store(cur.value, cur.pos, 4);
+        lsb.unfreeze();
+        break;
+      default:
+        //非跳转指令
+        if (cur.dest != -1) {
+          reg.next_reg[cur.dest].dep_ = -1;
+          reg.next_reg[cur.dest].val_ = cur.value;
+        }
+        break;
+    }
+    now_rob.pop();
   }
 
   ReorderBuffer rob;

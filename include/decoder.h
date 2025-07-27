@@ -16,6 +16,8 @@ namespace cpu_sim {
 
     void fetch();
 
+    void unfreeze();
+
   private:
     bool now_freeze_ = false, next_freeze_ = false;
   };

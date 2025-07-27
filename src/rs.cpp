@@ -134,7 +134,12 @@ namespace cpu_sim {
       const auto res = alu_calc(cur.inst.op, cur.vj, cur.vk, cur.a);
       const auto dest = cur.rob_dest;
       rob.next_rob[dest].progress = 3; //一周期
-      rob.next_rob[dest].value = res;
+      if (cur.inst.op == kJal || cur.inst.op == kJalr) {
+        rob.next_rob[dest].pos = res; //新pc作为pos值返回
+        rob.next_rob[dest].value = cur.inst.pc + 4;
+      } else {
+        rob.next_rob[dest].value = res;
+      }
       rob.next_rob[dest].status = kWrite;
       next_rs.remove(i);
     }

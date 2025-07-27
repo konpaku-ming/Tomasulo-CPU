@@ -12,17 +12,19 @@ namespace cpu_sim {
 
   void LoadStoreBuffer::upd() {
     now_lsb = next_lsb;
+    now_freeze = next_freeze;
   }
 
   void LoadStoreBuffer::clear() {
     now_lsb.clear();
     next_lsb.clear();
-    freeze = false;
+    now_freeze = false;
+    next_freeze = false;
   }
 
   void LoadStoreBuffer::run() {
     //完全顺序
-    if (now_lsb.empty() || freeze)return;
+    if (now_lsb.empty() || now_freeze)return;
     const auto cur = now_lsb.front();
     if (cur.qj != -1 || cur.qk != -1)return;
     const auto pos = cur.vj + cur.a; //rs1 + imm
@@ -77,7 +79,7 @@ namespace cpu_sim {
       case kSh:
       case kSw:
         rob.next_rob[dest].progress++;
-        freeze = true;
+        next_freeze = true;
         if (rob.next_rob[dest].progress == 3) {
           //在commit时才能修改RAM
           rob.next_rob[dest].pos = pos;
@@ -89,6 +91,10 @@ namespace cpu_sim {
       default:
         assert(false);
     }
+  }
+
+  void LoadStoreBuffer::unfreeze() {
+    next_freeze = false;
   }
 
   LoadStoreBuffer lsb;

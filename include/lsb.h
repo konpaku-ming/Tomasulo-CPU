@@ -17,7 +17,8 @@ namespace cpu_sim {
   public:
     CirQue<LSBNode, kLSBSize> now_lsb;
     CirQue<LSBNode, kLSBSize> next_lsb;
-    bool freeze = false;
+    bool now_freeze = false;
+    bool next_freeze = false;
 
     LoadStoreBuffer();
 
@@ -28,6 +29,8 @@ namespace cpu_sim {
     void clear();
 
     void run();
+
+    void unfreeze();
   };
 }
 

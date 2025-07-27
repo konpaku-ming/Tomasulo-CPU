@@ -43,6 +43,8 @@ namespace cpu_sim {
     void issue(int index);
 
     void write(int index);
+
+    void commit();
   };
 }
 
