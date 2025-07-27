@@ -150,6 +150,10 @@ namespace cpu_sim {
       return head_;
     }
 
+    int tail() const {
+      return tail_;
+    }
+
     int size() const {
       return size_;
     }

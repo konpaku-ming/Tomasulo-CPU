@@ -33,6 +33,7 @@ namespace cpu_sim {
         if (rob.next_rob[dest].progress == 3) {
           const auto val = sign_extend(memory.load(pos, 1), 8);
           rob.next_rob[dest].value = static_cast<u32>(val);
+          rob.next_rob[dest].status = kWrite;
           next_lsb.pop();
         }
         break;
@@ -41,6 +42,7 @@ namespace cpu_sim {
         if (rob.next_rob[dest].progress == 3) {
           const auto val = sign_extend(memory.load(pos, 2), 16);
           rob.next_rob[dest].value = static_cast<u32>(val);
+          rob.next_rob[dest].status = kWrite;
           next_lsb.pop();
         }
         break;
@@ -49,6 +51,7 @@ namespace cpu_sim {
         if (rob.next_rob[dest].progress == 3) {
           const auto val = sign_extend(memory.load(pos, 4), 32);
           rob.next_rob[dest].value = static_cast<u32>(val);
+          rob.next_rob[dest].status = kWrite;
           next_lsb.pop();
         }
         break;
@@ -57,6 +60,7 @@ namespace cpu_sim {
         if (rob.next_rob[dest].progress == 3) {
           const auto val = memory.load(pos, 1);
           rob.next_rob[dest].value = val;
+          rob.next_rob[dest].status = kWrite;
           next_lsb.pop();
         }
         break;
@@ -65,6 +69,7 @@ namespace cpu_sim {
         if (rob.next_rob[dest].progress == 3) {
           const auto val = memory.load(pos, 2);
           rob.next_rob[dest].value = val;
+          rob.next_rob[dest].status = kWrite;
           next_lsb.pop();
         }
         break;
@@ -77,6 +82,7 @@ namespace cpu_sim {
           //在commit时才能修改RAM
           rob.next_rob[dest].pos = pos;
           rob.next_rob[dest].value = cur.vk;
+          rob.next_rob[dest].status = kWrite;
           next_lsb.pop();
         }
         break;
@@ -84,4 +90,6 @@ namespace cpu_sim {
         assert(false);
     }
   }
+
+  LoadStoreBuffer lsb;
 }

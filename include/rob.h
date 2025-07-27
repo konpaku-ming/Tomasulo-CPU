@@ -41,6 +41,8 @@ namespace cpu_sim {
 
   private:
     void issue(int index);
+
+    void write(int index);
   };
 }
 

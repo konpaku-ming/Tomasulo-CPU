@@ -1,10 +1,14 @@
 #include "../include/rob.h"
+
+#include <include/lsb.h>
+
 #include "../include/reg.h"
 #include "../include/rs.h"
 
 namespace cpu_sim {
   extern Register reg;
   extern ReservationStation rs;
+  extern LoadStoreBuffer lsb;
 
   ROBNode::ROBNode() = default;
 
@@ -77,6 +81,39 @@ namespace cpu_sim {
         if (node.dest != -1) reg.next_reg[node.dest].dep_ = index;
         //放入entry
         rs_node.rob_dest = index;
+      }
+    }
+  }
+
+  void ReorderBuffer::write(const int index) {
+    auto cur = now_rob[index];
+    cur.status = kCommit;
+    if (cur.dest == -1) return;
+    //减除RS里指令依赖
+    for (int i = 0; i < kRSSize; i++) {
+      if (!rs.next_rs.exist(i))continue;
+      if (rs.next_rs[i].qj == index) {
+        rs.next_rs[i].qj = -1;
+        rs.next_rs[i].vj = cur.value;
+      }
+      if (rs.next_rs[i].qk == index) {
+        rs.next_rs[i].qk = -1;
+        rs.next_rs[i].vk = cur.value;
+      }
+    }
+    //减除LSB里指令依赖
+    if (!lsb.next_lsb.empty()) {
+      int i = lsb.next_lsb.head();
+      for (int cnt = 0; cnt < lsb.next_lsb.size(); cnt++) {
+        if (lsb.next_lsb[i].qj == index) {
+          lsb.next_lsb[i].qj = -1;
+          lsb.next_lsb[i].vj = cur.value;
+        }
+        if (lsb.next_lsb[i].qk == index) {
+          lsb.next_lsb[i].qk = -1;
+          lsb.next_lsb[i].vk = cur.value;
+        }
+        i = (i + 1) % kLSBSize;
       }
     }
   }

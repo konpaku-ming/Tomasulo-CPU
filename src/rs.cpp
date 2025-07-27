@@ -125,6 +125,7 @@ namespace cpu_sim {
       if (cur.inst.op == kHalt) {
         const auto dest = cur.rob_dest;
         rob.next_rob[dest].progress = 3; //一周期
+        rob.next_rob[dest].status = kWrite;
         //无计算
         next_rs.remove(i);
         return;
@@ -134,6 +135,7 @@ namespace cpu_sim {
       const auto dest = cur.rob_dest;
       rob.next_rob[dest].progress = 3; //一周期
       rob.next_rob[dest].value = res;
+      rob.next_rob[dest].status = kWrite;
       next_rs.remove(i);
     }
   }
