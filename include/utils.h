@@ -14,6 +14,8 @@ namespace cpu_sim {
 
   constexpr int kROBSize = 32;
 
+  constexpr int kLSBSize = 32;
+
   extern u32 now_pc;
   extern u32 next_pc;
   extern u32 real_pc;

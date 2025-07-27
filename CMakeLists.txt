@@ -11,4 +11,5 @@ add_executable(code
         src/rs.cpp
         src/rob.cpp
         src/decoder.cpp
-        src/mem.cpp)
+        src/mem.cpp
+        src/lsb.cpp)

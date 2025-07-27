@@ -121,7 +121,7 @@ namespace cpu_sim {
       if (!now_rs.exist(i))continue;
       //检查依赖
       const auto cur = now_rs[i];
-      if (cur.qj == -1 || now_rs[i].qk == -1)continue;
+      if (cur.qj != -1 || now_rs[i].qk != -1)continue;
       if (cur.inst.op == kHalt) {
         const auto dest = cur.rob_dest;
         rob.next_rob[dest].progress = 3; //一周期
@@ -129,6 +129,7 @@ namespace cpu_sim {
         next_rs.remove(i);
         return;
       }
+      //ALU运算
       const auto res = alu_calc(cur.inst.op, cur.vj, cur.vk, cur.a);
       const auto dest = cur.rob_dest;
       rob.next_rob[dest].progress = 3; //一周期
