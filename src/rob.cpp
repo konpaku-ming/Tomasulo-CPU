@@ -73,7 +73,6 @@ namespace cpu_sim {
         rs_node.a = node.inst.imm;
         //修改rob
         next_rob[index].status = kExec;
-        next_rob[index].busy = true;
         //reg记录依赖
         if (node.dest != -1) reg.next_reg[node.dest].dep_ = index;
         //放入entry

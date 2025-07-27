@@ -144,6 +144,9 @@ namespace cpu_sim {
       return *this;
     }
 
+    int head() const {
+      return head_;
+    }
 
     int size() const {
       return size_;

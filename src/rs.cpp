@@ -1,7 +1,10 @@
 #include "../include/rs.h"
+#include "../include/rob.h"
 
 namespace cpu_sim {
-  u32 alu_calc(OpType op, u32 vj, u32 vk, i32 a) {
+  extern ReorderBuffer rob;
+
+  u32 alu_calc(const OpType op, const u32 vj, const u32 vk, const i32 a) {
     // auipc和jal用pc作为rs1
     u32 res;
     switch (op) {
@@ -63,14 +66,6 @@ namespace cpu_sim {
         break;
       case kAuipc:
       case kAddi:
-      case kLb:
-      case kLh:
-      case kLw:
-      case kLbu:
-      case kLhu:
-      case kSb:
-      case kSh:
-      case kSw:
         res = vj + a;
         break;
       case kLui:
@@ -101,7 +96,7 @@ namespace cpu_sim {
         res = vj != vk ? 1 : 0;
         break;
       default:
-        std::cerr << "invalid op" << std::endl;
+        std::cerr << "invalid op in RS" << std::endl;
         assert(false);
     }
     return res;
@@ -124,11 +119,23 @@ namespace cpu_sim {
     if (now_rs.empty())return;
     for (int i = 0; i < kRSSize; i++) {
       if (!now_rs.exist(i))continue;
-      //TODO 检查参数
-      //TODO 执行，特判几个指令
+      //检查依赖
+      const auto cur = now_rs[i];
+      if (cur.qj == -1 || now_rs[i].qk == -1)continue;
+      if (cur.inst.op == kHalt) {
+        const auto dest = cur.rob_dest;
+        rob.next_rob[dest].progress = 3; //一周期
+        //无计算
+        next_rs.remove(i);
+        return;
+      }
+      const auto res = alu_calc(cur.inst.op, cur.vj, cur.vk, cur.a);
+      const auto dest = cur.rob_dest;
+      rob.next_rob[dest].progress = 3; //一周期
+      rob.next_rob[dest].value = res;
+      next_rs.remove(i);
     }
   }
-
 
   ReservationStation rs;
 }
