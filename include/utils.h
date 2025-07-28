@@ -21,6 +21,10 @@ namespace cpu_sim {
   extern u32 next_pc;
   extern u32 exec_pc;
 
+  inline void upd_pc() {
+    now_pc = next_pc;
+  }
+
   template<class T, int Size>
   class Arr {
   public:

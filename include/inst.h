@@ -240,6 +240,7 @@ namespace cpu_sim {
       default:
         inst.op = kInvalid;
         std::cerr << "op mismatch" << std::endl;
+        std::cerr << std::hex << pc << std::endl;
         assert(false);
     }
     return inst;

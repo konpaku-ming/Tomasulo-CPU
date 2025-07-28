@@ -22,6 +22,8 @@ namespace cpu_sim {
 
     void clear();
   };
+
+  extern Register reg;
 }
 
 #endif //REG_H

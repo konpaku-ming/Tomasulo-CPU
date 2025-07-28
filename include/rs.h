@@ -2,7 +2,7 @@
 #define RS_H
 
 #include "inst.h"
-#include "utils.h"
+#include "../include/utils.h"
 
 namespace cpu_sim {
   struct RSNode {
@@ -28,6 +28,8 @@ namespace cpu_sim {
 
     void run();
   };
+
+  extern ReservationStation rs;
 }
 
 #endif //RS_H

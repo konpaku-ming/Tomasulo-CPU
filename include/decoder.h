@@ -1,7 +1,7 @@
 #ifndef DECODER_H
 #define DECODER_H
 
-#include "utils.h"
+#include "../include/utils.h"
 
 namespace cpu_sim {
   class Decoder {
@@ -21,5 +21,7 @@ namespace cpu_sim {
   private:
     bool now_freeze_ = false, next_freeze_ = false;
   };
+
+  extern Decoder decoder;
 }
 #endif //DECODER_H

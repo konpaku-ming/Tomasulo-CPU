@@ -1,7 +1,6 @@
 #include "../include/decoder.h"
-
-#include <include/mem.h>
-#include <include/rob.h>
+#include "../include/mem.h"
+#include "../include/rob.h"
 
 namespace cpu_sim {
   extern ReorderBuffer rob;

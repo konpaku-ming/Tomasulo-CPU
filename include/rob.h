@@ -2,7 +2,7 @@
 #define ROB_H
 
 #include "inst.h"
-#include "utils.h"
+#include "../include/utils.h"
 
 namespace cpu_sim {
   enum ROBState {
@@ -39,6 +39,8 @@ namespace cpu_sim {
 
     void clear();
 
+    void run();
+
   private:
     void issue(int index);
 
@@ -46,6 +48,8 @@ namespace cpu_sim {
 
     void commit();
   };
+
+  extern ReorderBuffer rob;
 }
 
 #endif //ROB_H

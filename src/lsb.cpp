@@ -3,9 +3,6 @@
 #include "../include/rob.h"
 
 namespace cpu_sim {
-  extern ReorderBuffer rob;
-  extern Memory memory;
-
   LoadStoreBuffer::LoadStoreBuffer() = default;
 
   LoadStoreBuffer::~LoadStoreBuffer() = default;

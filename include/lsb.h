@@ -32,6 +32,8 @@ namespace cpu_sim {
 
     void unfreeze();
   };
+
+  extern LoadStoreBuffer lsb;
 }
 
 #endif //LSB_H

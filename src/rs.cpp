@@ -2,8 +2,6 @@
 #include "../include/rob.h"
 
 namespace cpu_sim {
-  extern ReorderBuffer rob;
-
   u32 alu_calc(const OpType op, const u32 vj, const u32 vk, const i32 a) {
     // auipc和jal用pc作为rs1
     u32 res;

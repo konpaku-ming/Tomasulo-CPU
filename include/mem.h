@@ -2,7 +2,7 @@
 #define MEM_H
 #include <iostream>
 #include <string>
-#include "utils.h"
+#include "../include/utils.h"
 
 namespace cpu_sim {
   struct Memory {
@@ -14,6 +14,8 @@ namespace cpu_sim {
 
     u32 load(u32 pos, u32 len) const;
   };
+
+  extern Memory memory;
 }
 
 #endif //MEM_H

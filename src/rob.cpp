@@ -6,12 +6,6 @@
 #include "../include/rs.h"
 
 namespace cpu_sim {
-  extern Register reg;
-  extern ReservationStation rs;
-  extern LoadStoreBuffer lsb;
-  extern Decoder decoder;
-  extern Memory memory;
-
   ROBNode::ROBNode() = default;
 
   ROBNode::ROBNode(const Inst &i) {
@@ -37,8 +31,8 @@ namespace cpu_sim {
   }
 
   void ReorderBuffer::issue(const int index) {
-    const auto node = now_rob[index];
-    switch (node.inst.op) {
+    const auto cur = now_rob[index];
+    switch (cur.inst.op) {
       case kLb:
       case kLbu:
       case kLh:
@@ -47,40 +41,68 @@ namespace cpu_sim {
       case kSb:
       case kSh:
       case kSw: {
-        //TODO: send to LSB
+        if (!lsb.next_lsb.full())break;
+        LSBNode lsb_node;
+        lsb_node.inst = cur.inst;
+        //处理rs1
+        if (cur.inst.rs1 != -1) {
+          const int dep = reg.next_reg[cur.inst.rs1].dep_;
+          if (dep == -1) lsb_node.vj = reg.next_reg[cur.inst.rs1].val_;
+          else {
+            if (next_rob[dep].status == kWrite)lsb_node.vj = next_rob[dep].value;
+            else lsb_node.qj = dep;
+          }
+        }
+        //处理rs2
+        if (cur.inst.rs2 != -1) {
+          const int dep = reg.next_reg[cur.inst.rs2].dep_;
+          if (dep == -1) lsb_node.vk = reg.next_reg[cur.inst.rs2].val_;
+          else {
+            if (next_rob[dep].status == kWrite)lsb_node.vk = next_rob[dep].value;
+            else lsb_node.qk = dep;
+          }
+        }
+        //处理立即数
+        lsb_node.a = cur.inst.imm;
+        //修改rob
+        next_rob[index].status = kExec;
+        //reg记录依赖
+        if (cur.dest != -1) reg.next_reg[cur.dest].dep_ = index;
+        //放入entry
+        lsb_node.rob_dest = index;
       }
       default: {
         //RS
         if (rs.next_rs.full())break;
         RSNode rs_node;
-        rs_node.inst = node.inst;
+        rs_node.inst = cur.inst;
         //处理rs1
-        if (node.inst.rs1 != -1) {
-          const int dep = reg.next_reg[node.inst.rs1].dep_;
-          if (dep == -1) rs_node.vj = reg.next_reg[node.inst.rs1].val_;
+        if (cur.inst.rs1 != -1) {
+          const int dep = reg.next_reg[cur.inst.rs1].dep_;
+          if (dep == -1) rs_node.vj = reg.next_reg[cur.inst.rs1].val_;
           else {
             if (next_rob[dep].status == kWrite)rs_node.vj = next_rob[dep].value;
             else rs_node.qj = dep;
           }
         }
-        if (node.inst.op == kAuipc || node.inst.op == kJal) {
-          rs_node.vj = node.inst.pc; //特殊处理，将PC作为rs1值处理
+        if (cur.inst.op == kAuipc || cur.inst.op == kJal) {
+          rs_node.vj = cur.inst.pc; //特殊处理，将PC作为rs1值处理
         }
         //处理rs2
-        if (node.inst.rs2 != -1) {
-          const int dep = reg.next_reg[node.inst.rs2].dep_;
-          if (dep == -1) rs_node.vk = reg.next_reg[node.inst.rs2].val_;
+        if (cur.inst.rs2 != -1) {
+          const int dep = reg.next_reg[cur.inst.rs2].dep_;
+          if (dep == -1) rs_node.vk = reg.next_reg[cur.inst.rs2].val_;
           else {
             if (next_rob[dep].status == kWrite)rs_node.vk = next_rob[dep].value;
             else rs_node.qk = dep;
           }
         }
         //处理立即数
-        rs_node.a = node.inst.imm;
+        rs_node.a = cur.inst.imm;
         //修改rob
         next_rob[index].status = kExec;
         //reg记录依赖
-        if (node.dest != -1) reg.next_reg[node.dest].dep_ = index;
+        if (cur.dest != -1) reg.next_reg[cur.dest].dep_ = index;
         //放入entry
         rs_node.rob_dest = index;
       }
@@ -124,6 +146,7 @@ namespace cpu_sim {
     const auto cur = now_rob.front();
     switch (cur.inst.op) {
       case kHalt:
+        std::cerr << "HALT commit" << std::endl;
         halt = true;
         return;
       case kJal:
@@ -185,6 +208,27 @@ namespace cpu_sim {
         break;
     }
     now_rob.pop();
+  }
+
+  void ReorderBuffer::run() {
+    if (now_rob.empty())return;
+    //提交队首指令
+    if (now_rob.front().status == kCommit)commit();
+    if (now_rob.empty())return;
+    auto i = now_rob.head();
+    for (int cnt = 0; cnt < now_rob.size(); cnt++) {
+      switch (now_rob[i].status) {
+        case kIssue:
+          issue(i);
+          break;
+        case kWrite:
+          write(i);
+          break;
+        default:
+          break;
+      }
+      i = (i + 1) % kROBSize;
+    }
   }
 
   ReorderBuffer rob;

@@ -12,6 +12,7 @@ namespace cpu_sim {
         load_pos++;
       }
     }
+    std::cerr << "load_pos: " << load_pos << std::endl;
   }
 
   void Memory::store(u32 val, const u32 pos, const u32 len) {
