@@ -22,7 +22,7 @@ namespace cpu_sim {
 
     ~ReservationStation();
 
-    void upd();
+    void update();
 
     void clear();
 

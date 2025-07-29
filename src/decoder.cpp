@@ -8,7 +8,7 @@ namespace cpu_sim {
 
   Decoder::~Decoder() = default;
 
-  void Decoder::upd() {
+  void Decoder::update() {
     now_freeze_ = next_freeze_;
   }
 
@@ -20,11 +20,10 @@ namespace cpu_sim {
   void Decoder::fetch() {
     if (now_freeze_)return;
     if (rob.next_rob.full())return;
-    decode_cnt_++;
+    upd_pc();
     const u32 code = memory.load(now_pc, 4);
     auto inst = decode(code, now_pc);
     //更新pc
-    //std::cerr << "op: " << inst.op << " | pc: " << std::hex << now_pc << std::dec << "\n";
     switch (inst.op) {
       case kJal:
         next_pc = now_pc + inst.imm;
@@ -35,6 +34,8 @@ namespace cpu_sim {
       case kBlt:
       case kBltu:
       case kBne:
+        //inst.predict = naive.predict(inst.pc);
+        //inst.predict = two_bits.predict(inst.pc);
         inst.predict = gshare.predict(inst.pc);
         next_pc = inst.predict ? now_pc + inst.imm : now_pc + 4;
         break;

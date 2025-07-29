@@ -22,7 +22,7 @@ namespace cpu_sim {
   ReorderBuffer::~ReorderBuffer() = default;
 
 
-  void ReorderBuffer::upd() {
+  void ReorderBuffer::update() {
     now_rob = next_rob;
   }
 
@@ -32,7 +32,6 @@ namespace cpu_sim {
   }
 
   void ReorderBuffer::issue(const int index) {
-    //std::cerr << "issuing..." << std::endl;
     const auto cur = now_rob[index];
     switch (cur.inst.op) {
       case kLb:
@@ -154,11 +153,9 @@ namespace cpu_sim {
     const auto index = now_rob.head();
     switch (cur.inst.op) {
       case kHalt:
-        std::cerr << "HALT commit\n";
         halt = true;
         return;
       case kJal: {
-        exec_pc = cur.pos;
         if (cur.dest != -1) {
           if (reg.next_reg[cur.dest].dep_ == index)reg.next_reg[cur.dest].dep_ = -1;
           reg.next_reg[cur.dest].val_ = cur.value;
@@ -166,7 +163,7 @@ namespace cpu_sim {
         break;
       }
       case kJalr: {
-        exec_pc = next_pc = cur.pos;
+        next_pc = cur.pos;
         decoder.unfreeze();
         if (cur.dest != -1) {
           if (reg.next_reg[cur.dest].dep_ == index)reg.next_reg[cur.dest].dep_ = -1;
@@ -180,13 +177,18 @@ namespace cpu_sim {
       case kBlt:
       case kBltu:
       case kBne: {
+        //naive.update(cur.inst.pc, cur.value);
+        //two_bits.update(cur.inst.pc, cur.value);
         gshare.update(cur.inst.pc, cur.value);
+
+        total_predict++;
         if (cur.inst.predict != static_cast<bool>(cur.value)) {
           //清空，回退状态
+          false_predict++;
           if (cur.value) {
-            exec_pc = next_pc = cur.inst.pc + cur.inst.imm;
+            next_pc = cur.inst.pc + cur.inst.imm;
           } else {
-            exec_pc = next_pc = cur.inst.pc + 4;
+            next_pc = cur.inst.pc + 4;
           }
           decoder.clear();
           reg.clear();
@@ -198,26 +200,22 @@ namespace cpu_sim {
         break;
       }
       case kSb: {
-        exec_pc = cur.inst.pc + 4;
         memory.store(cur.value, cur.pos, 1);
         lsb.unfreeze();
         break;
       }
       case kSh: {
-        exec_pc = cur.inst.pc + 4;
         memory.store(cur.value, cur.pos, 2);
         lsb.unfreeze();
         break;
       }
       case kSw: {
-        exec_pc = cur.inst.pc + 4;
         memory.store(cur.value, cur.pos, 4);
         lsb.unfreeze();
         break;
       }
       default: {
         //非跳转指令
-        exec_pc = cur.inst.pc + 4;
         if (cur.dest != -1) {
           if (reg.next_reg[cur.dest].dep_ == index)reg.next_reg[cur.dest].dep_ = -1;
           reg.next_reg[cur.dest].val_ = cur.value;

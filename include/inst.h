@@ -43,7 +43,6 @@ namespace cpu_sim {
     inst.pc = pc;
     if (code == 0x0FF00513) {
       inst.op = kHalt;
-      std::cerr << "decode HALT" << std::endl;
       return inst;
     }
     const u32 op = code & 0x7F; //取低7位

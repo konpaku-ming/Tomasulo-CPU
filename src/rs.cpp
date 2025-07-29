@@ -104,7 +104,7 @@ namespace cpu_sim {
 
   ReservationStation::~ReservationStation() = default;
 
-  void ReservationStation::upd() {
+  void ReservationStation::update() {
     now_rs = next_rs;
   }
 
@@ -121,7 +121,6 @@ namespace cpu_sim {
       const auto cur = now_rs[i];
       if (cur.qj != -1 || cur.qk != -1)continue;
       if (cur.inst.op == kHalt) {
-        std::cerr << "exec HALT\n";
         const auto dest = cur.rob_dest;
         rob.next_rob[dest].progress = 3; //一周期
         rob.next_rob[dest].status = kWrite;

@@ -24,7 +24,7 @@ namespace cpu_sim {
 
     ~LoadStoreBuffer();
 
-    void upd();
+    void update();
 
     void clear();
 

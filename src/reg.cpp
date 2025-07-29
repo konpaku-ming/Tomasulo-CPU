@@ -10,7 +10,7 @@ namespace cpu_sim {
 
   Register::~Register() = default;
 
-  void Register::upd() {
+  void Register::update() {
     for (int i = 0; i < kRegSize; ++i) {
       now_reg[i] = next_reg[i];
     }

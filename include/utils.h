@@ -19,7 +19,8 @@ namespace cpu_sim {
   extern bool halt;
   extern u32 now_pc;
   extern u32 next_pc;
-  extern u32 exec_pc;
+  extern int false_predict;
+  extern int total_predict;
 
   inline void upd_pc() {
     now_pc = next_pc;

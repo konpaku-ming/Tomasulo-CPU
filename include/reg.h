@@ -18,7 +18,7 @@ namespace cpu_sim {
 
     ~Register();
 
-    void upd();
+    void update();
 
     void clear();
   };

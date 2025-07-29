@@ -35,7 +35,7 @@ namespace cpu_sim {
 
     ~ReorderBuffer();
 
-    void upd();
+    void update();
 
     void clear();
 

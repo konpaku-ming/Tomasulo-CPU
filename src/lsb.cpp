@@ -7,7 +7,7 @@ namespace cpu_sim {
 
   LoadStoreBuffer::~LoadStoreBuffer() = default;
 
-  void LoadStoreBuffer::upd() {
+  void LoadStoreBuffer::update() {
     now_lsb = next_lsb;
     now_freeze = next_freeze;
   }
