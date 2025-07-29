@@ -23,9 +23,7 @@ namespace cpu_sim {
     //完全顺序
     if (now_lsb.empty())return;
     const auto cur = now_lsb.front();
-    std::cerr << "LSB front: " << cur.inst.op << std::endl;
     if (cur.qj != -1 || cur.qk != -1)return;
-    std::cerr << "**LSB front: **" << cur.inst.op << std::endl;
     const auto pos = cur.vj + cur.a; //rs1 + imm
     const int dest = cur.rob_dest;
     switch (cur.inst.op) {
@@ -69,7 +67,6 @@ namespace cpu_sim {
         if (rob.next_rob[dest].progress == 3) {
           const auto val = sign_extend(memory.load(pos, 4), 32);
           rob.next_rob[dest].value = val;
-          std::cerr << "load word: " << val << "------" << std::endl;
           rob.next_rob[dest].status = kWrite;
           next_lsb.pop();
         }

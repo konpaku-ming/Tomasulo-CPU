@@ -1,4 +1,5 @@
 #include "../include/rob.h"
+#include "../include/predictor.h"
 #include "../include/decoder.h"
 #include "../include/lsb.h"
 #include "../include/mem.h"
@@ -153,11 +154,10 @@ namespace cpu_sim {
     const auto index = now_rob.head();
     switch (cur.inst.op) {
       case kHalt:
-        std::cerr << "HALT commit" << std::endl;
+        std::cerr << "HALT commit\n";
         halt = true;
         return;
       case kJal: {
-        std::cerr << "JAL commit" << std::endl;
         exec_pc = cur.pos;
         if (cur.dest != -1) {
           if (reg.next_reg[cur.dest].dep_ == index)reg.next_reg[cur.dest].dep_ = -1;
@@ -166,7 +166,6 @@ namespace cpu_sim {
         break;
       }
       case kJalr: {
-        std::cerr << "JALR commit" << std::endl;
         exec_pc = next_pc = cur.pos;
         decoder.unfreeze();
         if (cur.dest != -1) {
@@ -181,9 +180,8 @@ namespace cpu_sim {
       case kBlt:
       case kBltu:
       case kBne: {
+        gshare.update(cur.inst.pc, cur.value);
         if (cur.inst.predict != static_cast<bool>(cur.value)) {
-          std::cerr << "all clear" << std::endl;
-          //assert(false);
           //清空，回退状态
           if (cur.value) {
             exec_pc = next_pc = cur.inst.pc + cur.inst.imm;
@@ -200,30 +198,25 @@ namespace cpu_sim {
         break;
       }
       case kSb: {
-        std::cerr << "SB commit" << std::endl;
         exec_pc = cur.inst.pc + 4;
         memory.store(cur.value, cur.pos, 1);
         lsb.unfreeze();
         break;
       }
       case kSh: {
-        std::cerr << "SH commit" << std::endl;
         exec_pc = cur.inst.pc + 4;
         memory.store(cur.value, cur.pos, 2);
         lsb.unfreeze();
         break;
       }
       case kSw: {
-        std::cerr << "SW commit" << std::endl;
         exec_pc = cur.inst.pc + 4;
-        std::cerr << "store: " << cur.value << "*****" << std::endl;
         memory.store(cur.value, cur.pos, 4);
         lsb.unfreeze();
         break;
       }
       default: {
         //非跳转指令
-        std::cerr << "normal inst commit: " << cur.inst.op << std::endl;
         exec_pc = cur.inst.pc + 4;
         if (cur.dest != -1) {
           if (reg.next_reg[cur.dest].dep_ == index)reg.next_reg[cur.dest].dep_ = -1;

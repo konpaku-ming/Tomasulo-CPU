@@ -13,4 +13,5 @@ add_executable(code
         src/decoder.cpp
         src/mem.cpp
         src/lsb.cpp
-        src/utils.cpp)
+        src/utils.cpp
+        src/predictor.cpp)

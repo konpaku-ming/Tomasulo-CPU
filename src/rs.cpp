@@ -121,7 +121,7 @@ namespace cpu_sim {
       const auto cur = now_rs[i];
       if (cur.qj != -1 || cur.qk != -1)continue;
       if (cur.inst.op == kHalt) {
-        std::cerr << "exec HALT" << std::endl;
+        std::cerr << "exec HALT\n";
         const auto dest = cur.rob_dest;
         rob.next_rob[dest].progress = 3; //一周期
         rob.next_rob[dest].status = kWrite;
@@ -140,7 +140,6 @@ namespace cpu_sim {
         rob.next_rob[dest].value = res;
       }
       rob.next_rob[dest].status = kWrite;
-      std::cerr << "exec: " << cur.inst.op << std::endl;
       next_rs.remove(i);
     }
   }

@@ -1,11 +1,9 @@
 #include "../include/decoder.h"
 #include "../include/mem.h"
 #include "../include/rob.h"
+#include "../include/predictor.h"
 
 namespace cpu_sim {
-  extern ReorderBuffer rob;
-  extern Memory memory;
-
   Decoder::Decoder() = default;
 
   Decoder::~Decoder() = default;
@@ -24,12 +22,11 @@ namespace cpu_sim {
     if (rob.next_rob.full())return;
     decode_cnt_++;
     const u32 code = memory.load(now_pc, 4);
-    const auto inst = decode(code, now_pc);
+    auto inst = decode(code, now_pc);
     //更新pc
-    std::cerr << "op: " << inst.op << " | pc: " << std::hex << now_pc << std::dec << std::endl;
+    //std::cerr << "op: " << inst.op << " | pc: " << std::hex << now_pc << std::dec << "\n";
     switch (inst.op) {
       case kJal:
-        //std::cerr << "decode JAL" << std::endl;
         next_pc = now_pc + inst.imm;
         break;
       case kBeq:
@@ -38,8 +35,8 @@ namespace cpu_sim {
       case kBlt:
       case kBltu:
       case kBne:
-        //TODO: Predictor
-        next_pc = now_pc + 4;
+        inst.predict = gshare.predict(inst.pc);
+        next_pc = inst.predict ? now_pc + inst.imm : now_pc + 4;
         break;
       case kJalr:
       case kHalt:

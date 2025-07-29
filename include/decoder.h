@@ -1,8 +1,6 @@
 #ifndef DECODER_H
 #define DECODER_H
 
-#include "../include/utils.h"
-
 namespace cpu_sim {
   class Decoder {
   public:
