@@ -14,7 +14,6 @@ namespace cpu_sim {
     for (int i = 0; i < kRegSize; ++i) {
       now_reg[i] = next_reg[i];
     }
-    now_reg[0] = next_reg[0] = {0, -1};
   }
 
   void Register::clear() {
