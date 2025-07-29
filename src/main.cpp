@@ -7,7 +7,8 @@
 #include "../include/utils.h"
 
 int main() {
-  freopen("../sample/sample.data", "r",stdin);
+  freopen("../testcases/array_test2.data", "r",stdin);
+  //freopen("../sample/sample.data", "r",stdin);
   freopen("../test.out", "w",stdout);
   int total_cycle = 0;
   cpu_sim::memory.input_inst();

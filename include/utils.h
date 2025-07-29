@@ -171,12 +171,12 @@ namespace cpu_sim {
       return data_[head_];
     }
 
-    void push(const T &item) {
+    void push(const T &val) {
       if (full()) {
         std::cerr << "error push: full CirQue" << std::endl;
         assert(false);
       }
-      data_[tail_] = item;
+      data_[tail_] = val;
       tail_ = (tail_ + 1) % Size;
       size_++;
     }

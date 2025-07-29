@@ -182,6 +182,8 @@ namespace cpu_sim {
       case kBltu:
       case kBne: {
         if (cur.inst.predict != static_cast<bool>(cur.value)) {
+          std::cerr << "all clear" << std::endl;
+          //assert(false);
           //清空，回退状态
           if (cur.value) {
             exec_pc = next_pc = cur.inst.pc + cur.inst.imm;
@@ -192,7 +194,7 @@ namespace cpu_sim {
           reg.clear();
           rs.clear();
           lsb.clear();
-          this->clear();
+          rob.clear();
           return;
         }
         break;
@@ -248,7 +250,6 @@ namespace cpu_sim {
           write(i);
           break;
         default:
-          std::cerr << "??? " << now_rob[i].inst.op << " " << now_rob[i].status << std::endl;
           break;
       }
       i = (i + 1) % kROBSize;

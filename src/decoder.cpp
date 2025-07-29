@@ -26,7 +26,7 @@ namespace cpu_sim {
     const u32 code = memory.load(now_pc, 4);
     const auto inst = decode(code, now_pc);
     //更新pc
-    std::cerr << "op: " << inst.op << " | pc: " << now_pc << std::endl;
+    std::cerr << "op: " << inst.op << " | pc: " << std::hex << now_pc << std::dec << std::endl;
     switch (inst.op) {
       case kJal:
         //std::cerr << "decode JAL" << std::endl;
@@ -37,17 +37,16 @@ namespace cpu_sim {
       case kBgeu:
       case kBlt:
       case kBltu:
+      case kBne:
         //TODO: Predictor
-        //std::cerr << "decode BRANCH: " << inst.op << std::endl;
+        next_pc = now_pc + 4;
         break;
       case kJalr:
       case kHalt:
-        //std::cerr << "decode JALR/HALT: " << inst.op << std::endl;
         next_freeze_ = true;
         next_pc = now_pc;
         break;
       default:
-        //std::cerr << "decode normal inst: " << inst.op << std::endl;
         next_pc = now_pc + 4;
         break;
     }
