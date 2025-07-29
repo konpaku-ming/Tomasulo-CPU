@@ -20,6 +20,7 @@ namespace cpu_sim {
 
   private:
     bool now_freeze_ = false, next_freeze_ = false;
+    int decode_cnt_ = 0;
   };
 
   extern Decoder decoder;

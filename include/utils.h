@@ -46,7 +46,7 @@ namespace cpu_sim {
         data_[i] = other.data_[i];
         flag_[i] = other.flag_[i];
       }
-      this->size_ = other.size_;
+      size_ = other.size_;
       return *this;
     }
 

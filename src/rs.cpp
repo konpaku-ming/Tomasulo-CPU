@@ -94,7 +94,7 @@ namespace cpu_sim {
         res = vj != vk ? 1 : 0;
         break;
       default:
-        std::cerr << "invalid op in RS" << std::endl;
+        std::cerr << "invalid op in RS: " << op << std::endl;
         assert(false);
     }
     return res;
@@ -119,8 +119,9 @@ namespace cpu_sim {
       if (!now_rs.exist(i))continue;
       //检查依赖
       const auto cur = now_rs[i];
-      if (cur.qj != -1 || now_rs[i].qk != -1)continue;
+      if (cur.qj != -1 || cur.qk != -1)continue;
       if (cur.inst.op == kHalt) {
+        std::cerr << "exec HALT" << std::endl;
         const auto dest = cur.rob_dest;
         rob.next_rob[dest].progress = 3; //一周期
         rob.next_rob[dest].status = kWrite;
@@ -139,6 +140,7 @@ namespace cpu_sim {
         rob.next_rob[dest].value = res;
       }
       rob.next_rob[dest].status = kWrite;
+      std::cerr << "exec: " << cur.inst.op << std::endl;
       next_rs.remove(i);
     }
   }

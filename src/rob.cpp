@@ -31,6 +31,7 @@ namespace cpu_sim {
   }
 
   void ReorderBuffer::issue(const int index) {
+    //std::cerr << "issuing..." << std::endl;
     const auto cur = now_rob[index];
     switch (cur.inst.op) {
       case kLb:
@@ -41,7 +42,7 @@ namespace cpu_sim {
       case kSb:
       case kSh:
       case kSw: {
-        if (!lsb.next_lsb.full())break;
+        if (lsb.next_lsb.full())return;
         LSBNode lsb_node;
         lsb_node.inst = cur.inst;
         //处理rs1
@@ -49,7 +50,7 @@ namespace cpu_sim {
           const int dep = reg.next_reg[cur.inst.rs1].dep_;
           if (dep == -1) lsb_node.vj = reg.next_reg[cur.inst.rs1].val_;
           else {
-            if (next_rob[dep].status == kWrite)lsb_node.vj = next_rob[dep].value;
+            if (next_rob[dep].status == kCommit)lsb_node.vj = next_rob[dep].value;
             else lsb_node.qj = dep;
           }
         }
@@ -58,7 +59,7 @@ namespace cpu_sim {
           const int dep = reg.next_reg[cur.inst.rs2].dep_;
           if (dep == -1) lsb_node.vk = reg.next_reg[cur.inst.rs2].val_;
           else {
-            if (next_rob[dep].status == kWrite)lsb_node.vk = next_rob[dep].value;
+            if (next_rob[dep].status == kCommit)lsb_node.vk = next_rob[dep].value;
             else lsb_node.qk = dep;
           }
         }
@@ -70,18 +71,21 @@ namespace cpu_sim {
         if (cur.dest != -1) reg.next_reg[cur.dest].dep_ = index;
         //放入entry
         lsb_node.rob_dest = index;
+        lsb.next_lsb.push(lsb_node);
+        break;
       }
       default: {
         //RS
-        if (rs.next_rs.full())break;
+        if (rs.next_rs.full())return;
         RSNode rs_node;
         rs_node.inst = cur.inst;
+        if (cur.inst.op == kHalt)std::cerr << "issue HALT" << std::endl;
         //处理rs1
         if (cur.inst.rs1 != -1) {
           const int dep = reg.next_reg[cur.inst.rs1].dep_;
           if (dep == -1) rs_node.vj = reg.next_reg[cur.inst.rs1].val_;
           else {
-            if (next_rob[dep].status == kWrite)rs_node.vj = next_rob[dep].value;
+            if (next_rob[dep].status == kCommit)rs_node.vj = next_rob[dep].value;
             else rs_node.qj = dep;
           }
         }
@@ -93,7 +97,7 @@ namespace cpu_sim {
           const int dep = reg.next_reg[cur.inst.rs2].dep_;
           if (dep == -1) rs_node.vk = reg.next_reg[cur.inst.rs2].val_;
           else {
-            if (next_rob[dep].status == kWrite)rs_node.vk = next_rob[dep].value;
+            if (next_rob[dep].status == kCommit)rs_node.vk = next_rob[dep].value;
             else rs_node.qk = dep;
           }
         }
@@ -105,13 +109,15 @@ namespace cpu_sim {
         if (cur.dest != -1) reg.next_reg[cur.dest].dep_ = index;
         //放入entry
         rs_node.rob_dest = index;
+        rs.next_rs.push(rs_node);
+        break;
       }
     }
   }
 
   void ReorderBuffer::write(const int index) {
-    auto cur = now_rob[index];
-    cur.status = kCommit;
+    const auto cur = now_rob[index];
+    next_rob[index].status = kCommit;
     if (cur.dest == -1) return;
     //减除RS里指令依赖
     for (int i = 0; i < kRSSize; i++) {
@@ -144,32 +150,37 @@ namespace cpu_sim {
 
   void ReorderBuffer::commit() {
     const auto cur = now_rob.front();
+    const auto index = now_rob.head();
     switch (cur.inst.op) {
       case kHalt:
         std::cerr << "HALT commit" << std::endl;
         halt = true;
         return;
-      case kJal:
+      case kJal: {
+        std::cerr << "JAL commit" << std::endl;
         exec_pc = cur.pos;
         if (cur.dest != -1) {
-          reg.next_reg[cur.dest].dep_ = -1;
+          if (reg.next_reg[cur.dest].dep_ == index)reg.next_reg[cur.dest].dep_ = -1;
           reg.next_reg[cur.dest].val_ = cur.value;
         }
         break;
-      case kJalr:
+      }
+      case kJalr: {
+        std::cerr << "JALR commit" << std::endl;
         exec_pc = next_pc = cur.pos;
         decoder.unfreeze();
         if (cur.dest != -1) {
-          reg.next_reg[cur.dest].dep_ = -1;
+          if (reg.next_reg[cur.dest].dep_ == index)reg.next_reg[cur.dest].dep_ = -1;
           reg.next_reg[cur.dest].val_ = cur.value;
         }
         break;
+      }
       case kBeq:
       case kBge:
       case kBgeu:
       case kBlt:
       case kBltu:
-      case kBne:
+      case kBne: {
         if (cur.inst.predict != static_cast<bool>(cur.value)) {
           //清空，回退状态
           if (cur.value) {
@@ -182,32 +193,44 @@ namespace cpu_sim {
           rs.clear();
           lsb.clear();
           this->clear();
+          return;
         }
-        return;
-      case kSb:
+        break;
+      }
+      case kSb: {
+        std::cerr << "SB commit" << std::endl;
         exec_pc = cur.inst.pc + 4;
         memory.store(cur.value, cur.pos, 1);
         lsb.unfreeze();
         break;
-      case kSh:
+      }
+      case kSh: {
+        std::cerr << "SH commit" << std::endl;
         exec_pc = cur.inst.pc + 4;
         memory.store(cur.value, cur.pos, 2);
         lsb.unfreeze();
         break;
-      case kSw:
+      }
+      case kSw: {
+        std::cerr << "SW commit" << std::endl;
         exec_pc = cur.inst.pc + 4;
+        std::cerr << "store: " << cur.value << "*****" << std::endl;
         memory.store(cur.value, cur.pos, 4);
         lsb.unfreeze();
         break;
-      default:
+      }
+      default: {
         //非跳转指令
+        std::cerr << "normal inst commit: " << cur.inst.op << std::endl;
+        exec_pc = cur.inst.pc + 4;
         if (cur.dest != -1) {
-          reg.next_reg[cur.dest].dep_ = -1;
+          if (reg.next_reg[cur.dest].dep_ == index)reg.next_reg[cur.dest].dep_ = -1;
           reg.next_reg[cur.dest].val_ = cur.value;
         }
         break;
+      }
     }
-    now_rob.pop();
+    next_rob.pop();
   }
 
   void ReorderBuffer::run() {
@@ -225,6 +248,7 @@ namespace cpu_sim {
           write(i);
           break;
         default:
+          std::cerr << "??? " << now_rob[i].inst.op << " " << now_rob[i].status << std::endl;
           break;
       }
       i = (i + 1) % kROBSize;

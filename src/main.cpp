@@ -7,7 +7,7 @@
 #include "../include/utils.h"
 
 int main() {
-  freopen("../testcases/array_test1.data", "r",stdin);
+  freopen("../sample/sample.data", "r",stdin);
   freopen("../test.out", "w",stdout);
   int total_cycle = 0;
   cpu_sim::memory.input_inst();
@@ -26,7 +26,7 @@ int main() {
     cpu_sim::rs.run();
     cpu_sim::lsb.run();
 
-    if (total_cycle % 100 == 0)std::cerr << total_cycle << std::endl;
+    if (total_cycle % 100000 == 0)std::cerr << total_cycle << std::endl;
   }
   const auto ans = cpu_sim::reg.now_reg[10].val_ & 0xFF;
   std::cout << ans << std::endl;
