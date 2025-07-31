@@ -17,12 +17,16 @@ namespace cpu_sim {
   TwoBitsPredictor::~TwoBitsPredictor() = default;
 
   bool TwoBitsPredictor::predict(const u32 pc) const {
-    const auto idx = (pc >> 2) & 0x3FF;
+    auto hash = pc >> 2;
+    hash = hash ^ (hash >> 10) ^ (hash >> 20);
+    const auto idx = hash & 0x3FF;
     return log[idx] >= 2;
   }
 
   void TwoBitsPredictor::update(const u32 pc, const int taken) {
-    const auto idx = (pc >> 2) & 0x3FF;
+    auto hash = pc >> 2;
+    hash = hash ^ (hash >> 10) ^ (hash >> 20);
+    const auto idx = hash & 0x3FF;
     if (taken) {
       if (log[idx] < 3) log[idx]++;
     } else {
@@ -35,12 +39,16 @@ namespace cpu_sim {
   GSharePredictor::~GSharePredictor() = default;
 
   bool GSharePredictor::predict(const u32 pc) const {
-    const auto idx = ((pc >> 2) ^ history) & 0x3FF;
+    auto hash = pc >> 2;
+    hash = hash ^ (hash >> 10) ^ (hash >> 20);
+    const auto idx = (hash ^ history) & 0x3FF;
     return log[idx] >= 2;
   }
 
   void GSharePredictor::update(const u32 pc, const int taken) {
-    const auto idx = ((pc >> 2) ^ history) & 0x3FF;
+    auto hash = pc >> 2;
+    hash = hash ^ (hash >> 10) ^ (hash >> 20);
+    const auto idx = (hash ^ history) & 0x3FF;
     if (taken) {
       if (log[idx] < 3) log[idx]++;
     } else {
