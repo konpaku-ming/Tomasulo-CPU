@@ -17,7 +17,7 @@ namespace cpu_sim {
     next_freeze_ = false;
   }
 
-  void Decoder::fetch() {
+  void Decoder::run() {
     if (now_freeze_)return;
     if (rob.next_rob.full())return;
     upd_pc();

@@ -12,7 +12,7 @@ namespace cpu_sim {
 
     void clear();
 
-    void fetch();
+    void run();
 
     void unfreeze();
 

@@ -9,9 +9,9 @@ namespace cpu_sim {
 
     ~NaivePredictor();
 
-    static bool predict(u32 pc);
+    bool predict(u32 pc) const;
 
-    static void update(u32 pc, int taken);
+    void update(u32 pc, int taken);
   };
 
   class TwoBitsPredictor {

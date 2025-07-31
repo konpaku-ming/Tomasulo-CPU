@@ -5,7 +5,7 @@ namespace cpu_sim {
 
   NaivePredictor::~NaivePredictor() = default;
 
-  bool NaivePredictor::predict(const u32) {
+  bool NaivePredictor::predict(const u32) const {
     return false;
   }
 
