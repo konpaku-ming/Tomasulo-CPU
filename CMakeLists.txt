@@ -14,4 +14,5 @@ add_executable(code
         src/mem.cpp
         src/lsb.cpp
         src/utils.cpp
-        src/predictor.cpp)
+        src/predictor.cpp
+        src/alu.cpp)

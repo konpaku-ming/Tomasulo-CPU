@@ -1,4 +1,5 @@
 #include "../include/rob.h"
+#include "../include/alu.h"
 #include "../include/predictor.h"
 #include "../include/decoder.h"
 #include "../include/lsb.h"
@@ -178,8 +179,8 @@ namespace cpu_sim {
       case kBltu:
       case kBne: {
         //naive.update(cur.inst.pc, cur.value);
-        //two_bits.update(cur.inst.pc, cur.value);
-        gshare.update(cur.inst.pc, cur.value);
+        two_bits.update(cur.inst.pc, cur.value);
+        //gshare.update(cur.inst.pc, cur.value);
 
         total_predict++;
         if (cur.inst.predict != static_cast<bool>(cur.value)) {
@@ -195,6 +196,7 @@ namespace cpu_sim {
           rs.clear();
           lsb.clear();
           rob.clear();
+          alu.clear();
           return;
         }
         break;
