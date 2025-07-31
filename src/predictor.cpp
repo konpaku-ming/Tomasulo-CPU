@@ -89,14 +89,14 @@ namespace cpu_sim {
   bool ChoicePredictor::prefer(const u32 pc) const {
     auto hash = pc >> 2;
     hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & 0x3FF;
-    return choice[hash] >= 2; //true表示选local
+    return choice[hash] >= 2; //true表示选global
   }
 
   void ChoicePredictor::update(const u32 pc, const bool local_correct, const bool global_correct) {
     auto hash = pc >> 2;
     hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & 0x3FF;
-    if (!global_correct && local_correct && choice[hash] < 3) choice[hash]++;
-    else if (global_correct && !local_correct && choice[hash] > 0) choice[hash]--;
+    if (global_correct && !local_correct && choice[hash] < 3) choice[hash]++;
+    else if (!global_correct && local_correct && choice[hash] > 0) choice[hash]--;
   }
 
   TournamentPredictor::TournamentPredictor() = default;
@@ -104,7 +104,7 @@ namespace cpu_sim {
   TournamentPredictor::~TournamentPredictor() = default;
 
   bool TournamentPredictor::predict(const u32 pc) const {
-    return choice_predictor.prefer(pc) ? local_predictor.predict(pc) : global_predictor.predict(pc);
+    return choice_predictor.prefer(pc) ? global_predictor.predict(pc) : local_predictor.predict(pc);
   }
 
   void TournamentPredictor::update(const u32 pc, const int taken) {
