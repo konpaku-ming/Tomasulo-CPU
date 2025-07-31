@@ -35,8 +35,11 @@ namespace cpu_sim {
       case kBltu:
       case kBne:
         //inst.predict = naive.predict(inst.pc);
-        inst.predict = two_bits.predict(inst.pc);
-        //inst.predict = gshare.predict(inst.pc);
+        //inst.predict = two_bits.predict(inst.pc);
+        //inst.predict = global.predict(inst.pc);
+        inst.predict = local.predict(inst.pc);
+        //inst.predict = tournament.predict(inst.pc);
+
         next_pc = inst.predict ? now_pc + inst.imm : now_pc + 4;
         break;
       case kJalr:

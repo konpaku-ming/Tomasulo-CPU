@@ -9,7 +9,7 @@
 
 int main() {
   //freopen("../sample/sample.data", "r",stdin);
-  //freopen("../testcases/superloop.data", "r",stdin);
+  freopen("../testcases/superloop.data", "r",stdin);
   //freopen("../test.out", "w",stdout);
   int total_cycle = 0;
   cpu_sim::memory.input_inst();
@@ -32,6 +32,8 @@ int main() {
   const auto ans = cpu_sim::reg.now_reg[10].val_ & 0xFF;
   std::cout << ans << std::endl;
   std::cerr << "Time consume: " << total_cycle << std::endl;
-  std::cerr << "Predict:  Total:" << cpu_sim::total_predict << " / False:" << cpu_sim::false_predict << std::endl;
+  std::cerr << "Predict:  Total:" << cpu_sim::total_predict << " / False:" << cpu_sim::false_predict <<
+      " => Correct Rate: " << (1.0 - (static_cast<double>(cpu_sim::false_predict) / cpu_sim::total_predict)) * 100
+      << "%" << std::endl;
   return 0;
 }

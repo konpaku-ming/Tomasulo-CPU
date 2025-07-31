@@ -27,14 +27,56 @@ namespace cpu_sim {
     void update(u32 pc, int taken);
   };
 
-  class GSharePredictor {
+  class GlobalPredictor {
   public:
     int log[1024]{};
     u32 history = 0;
 
-    GSharePredictor();
+    GlobalPredictor();
 
-    ~GSharePredictor();
+    ~GlobalPredictor();
+
+    bool predict(u32 pc) const;
+
+    void update(u32 pc, int taken);
+  };
+
+  class LocalPredictor {
+  public:
+    int log[1024]{};
+    u32 local_history[1024]{};
+
+    LocalPredictor();
+
+    ~LocalPredictor();
+
+    bool predict(u32 pc) const;
+
+    void update(u32 pc, int taken);
+  };
+
+  class ChoicePredictor {
+  public:
+    int choice[1024]{};
+
+    ChoicePredictor();
+
+    ~ChoicePredictor();
+
+    bool prefer(u32 pc) const;
+
+    void update(u32 pc, bool local_correct, bool global_correct);
+  };
+
+  class TournamentPredictor {
+  public:
+    GlobalPredictor global_predictor;
+    LocalPredictor local_predictor;
+    ChoicePredictor choice_predictor;
+
+    TournamentPredictor();
+
+    ~TournamentPredictor();
 
     bool predict(u32 pc) const;
 
@@ -45,7 +87,11 @@ namespace cpu_sim {
 
   extern TwoBitsPredictor two_bits;
 
-  extern GSharePredictor gshare;
+  extern GlobalPredictor global;
+
+  extern LocalPredictor local;
+
+  extern TournamentPredictor tournament;
 }
 
 
