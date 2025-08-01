@@ -1,4 +1,5 @@
 #include "../include/alu.h"
+#include "../include/lsb.h"
 #include "../include/rs.h"
 
 namespace cpu_sim {
@@ -7,13 +8,13 @@ namespace cpu_sim {
   ArithmeticLogicUnit::~ArithmeticLogicUnit() = default;
 
   void ArithmeticLogicUnit::update() {
-    for (int i = 0; i < kRSSize; i++) {
+    for (int i = 0; i < kRSSize + 1; i++) {
       now_alu[i] = next_alu[i];
     }
   }
 
   void ArithmeticLogicUnit::clear() {
-    for (int i = 0; i < kRSSize; i++) {
+    for (int i = 0; i < kRSSize + 1; i++) {
       now_alu[i].busy = false;
       next_alu[i].busy = false;
     }
@@ -90,6 +91,14 @@ namespace cpu_sim {
       //jal和jalr用返回的res作为pc
       case kJalr:
       case kJal:
+      case kSb:
+      case kSh:
+      case kSw:
+      case kLb:
+      case kLbu:
+      case kLh:
+      case kLhu:
+      case kLw:
         res = vj + a;
         break;
       //B类返回bool
@@ -127,6 +136,11 @@ namespace cpu_sim {
       rs.next_rs[i].res = alu_calc(cur.op, cur.vj, cur.vk, cur.a);
       rs.next_rs[i].busy = false;
     }
+    if (!now_alu[kRSSize].busy)return;
+    const auto cur = now_alu[kRSSize];
+    next_alu[kRSSize].busy = false;
+    lsb.next_lsb.front().res = alu_calc(cur.op, cur.vj, cur.vk, cur.a);
+    lsb.next_lsb.front().busy = false;
   }
 
   ArithmeticLogicUnit alu;

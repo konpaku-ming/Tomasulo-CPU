@@ -11,6 +11,8 @@ namespace cpu_sim {
     int qj = -1, qk = -1;
     i32 a = 0;
     int rob_dest = -1;
+    int res = 0;
+    bool busy = true;
   };
 
   class LoadStoreBuffer {

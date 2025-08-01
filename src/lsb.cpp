@@ -1,4 +1,5 @@
 #include "../include/lsb.h"
+#include "../include/alu.h"
 #include "../include/mem.h"
 #include "../include/rob.h"
 
@@ -23,107 +24,115 @@ namespace cpu_sim {
     //完全顺序
     if (now_lsb.empty())return;
     const auto cur = now_lsb.front();
-    if (cur.qj != -1 || cur.qk != -1)return;
-    const auto pos = cur.vj + cur.a; //rs1 + imm
-    const int dest = cur.rob_dest;
-    switch (cur.inst.op) {
-      case kLb: {
-        if (rob.next_rob[dest].progress == 0) {
-          if (now_freeze)return;
-          rob.next_rob[dest].progress = 1;
-          return;
-        }
-        rob.next_rob[dest].progress++;
-        if (rob.next_rob[dest].progress == 3) {
-          const auto val = sign_extend(memory.load(pos, 1), 8);
-          rob.next_rob[dest].value = val;
-          rob.next_rob[dest].status = kWrite;
-          next_lsb.pop();
-        }
-        break;
+    if (cur.busy) {
+      if (cur.qj != -1 || cur.qk != -1)return;
+      if (!alu.next_alu[kRSSize].busy) {
+        const AluNode node = {cur.inst.op, cur.vj, cur.vk, cur.a};
+        alu.next_alu[kRSSize] = node;
+        alu.next_alu[kRSSize].busy = true;
       }
-      case kLh: {
-        if (rob.next_rob[dest].progress == 0) {
-          if (now_freeze)return;
-          rob.next_rob[dest].progress = 1;
-          return;
-        }
-        rob.next_rob[dest].progress++;
-        if (rob.next_rob[dest].progress == 3) {
-          const auto val = sign_extend(memory.load(pos, 2), 16);
-          rob.next_rob[dest].value = val;
-          rob.next_rob[dest].status = kWrite;
-          next_lsb.pop();
-        }
-        break;
-      }
-      case kLw: {
-        if (rob.next_rob[dest].progress == 0) {
-          if (now_freeze)return;
-          rob.next_rob[dest].progress = 1;
-          return;
-        }
-        rob.next_rob[dest].progress++;
-        if (rob.next_rob[dest].progress == 3) {
-          const auto val = sign_extend(memory.load(pos, 4), 32);
-          rob.next_rob[dest].value = val;
-          rob.next_rob[dest].status = kWrite;
-          next_lsb.pop();
-        }
-        break;
-      }
-      case kLbu: {
-        if (rob.next_rob[dest].progress == 0) {
-          if (now_freeze)return;
-          rob.next_rob[dest].progress = 1;
-          return;
-        }
-        rob.next_rob[dest].progress++;
-        if (rob.next_rob[dest].progress == 3) {
-          const auto val = memory.load(pos, 1);
-          rob.next_rob[dest].value = static_cast<i32>(val);
-          rob.next_rob[dest].status = kWrite;
-          next_lsb.pop();
-        }
-        break;
-      }
-      case kLhu: {
-        if (rob.next_rob[dest].progress == 0) {
-          if (now_freeze)return;
-          rob.next_rob[dest].progress = 1;
-          return;
-        }
-        rob.next_rob[dest].progress++;
-        if (rob.next_rob[dest].progress == 3) {
-          const auto val = memory.load(pos, 2);
-          rob.next_rob[dest].value = static_cast<i32>(val);
-          rob.next_rob[dest].status = kWrite;
-          next_lsb.pop();
-        }
-        break;
-      }
-      case kSb:
-      case kSh:
-      case kSw: {
-        if (rob.next_rob[dest].progress == 0) {
-          if (now_freeze)return;
-          rob.next_rob[dest].progress = 1;
+    } else {
+      const auto pos = cur.res; //rs1 + imm
+      const int dest = cur.rob_dest;
+      switch (cur.inst.op) {
+        case kLb: {
+          if (rob.next_rob[dest].progress == 0) {
+            if (now_freeze)return;
+            rob.next_rob[dest].progress = 1;
+            return;
+          }
+          rob.next_rob[dest].progress++;
+          if (rob.next_rob[dest].progress == 3) {
+            const auto val = sign_extend(memory.load(pos, 1), 8);
+            rob.next_rob[dest].value = val;
+            rob.next_rob[dest].status = kWrite;
+            next_lsb.pop();
+          }
           break;
         }
-        rob.next_rob[dest].progress++;
-        //std::cerr << cur.inst.op << " progress: " << rob.next_rob[dest].progress << std::endl;
-        next_freeze = true;
-        if (rob.next_rob[dest].progress == 3) {
-          //在commit时才能修改RAM
-          rob.next_rob[dest].pos = pos;
-          rob.next_rob[dest].value = static_cast<i32>(cur.vk);
-          rob.next_rob[dest].status = kWrite;
-          next_lsb.pop();
+        case kLh: {
+          if (rob.next_rob[dest].progress == 0) {
+            if (now_freeze)return;
+            rob.next_rob[dest].progress = 1;
+            return;
+          }
+          rob.next_rob[dest].progress++;
+          if (rob.next_rob[dest].progress == 3) {
+            const auto val = sign_extend(memory.load(pos, 2), 16);
+            rob.next_rob[dest].value = val;
+            rob.next_rob[dest].status = kWrite;
+            next_lsb.pop();
+          }
+          break;
         }
-        break;
+        case kLw: {
+          if (rob.next_rob[dest].progress == 0) {
+            if (now_freeze)return;
+            rob.next_rob[dest].progress = 1;
+            return;
+          }
+          rob.next_rob[dest].progress++;
+          if (rob.next_rob[dest].progress == 3) {
+            const auto val = sign_extend(memory.load(pos, 4), 32);
+            rob.next_rob[dest].value = val;
+            rob.next_rob[dest].status = kWrite;
+            next_lsb.pop();
+          }
+          break;
+        }
+        case kLbu: {
+          if (rob.next_rob[dest].progress == 0) {
+            if (now_freeze)return;
+            rob.next_rob[dest].progress = 1;
+            return;
+          }
+          rob.next_rob[dest].progress++;
+          if (rob.next_rob[dest].progress == 3) {
+            const auto val = memory.load(pos, 1);
+            rob.next_rob[dest].value = static_cast<i32>(val);
+            rob.next_rob[dest].status = kWrite;
+            next_lsb.pop();
+          }
+          break;
+        }
+        case kLhu: {
+          if (rob.next_rob[dest].progress == 0) {
+            if (now_freeze)return;
+            rob.next_rob[dest].progress = 1;
+            return;
+          }
+          rob.next_rob[dest].progress++;
+          if (rob.next_rob[dest].progress == 3) {
+            const auto val = memory.load(pos, 2);
+            rob.next_rob[dest].value = static_cast<i32>(val);
+            rob.next_rob[dest].status = kWrite;
+            next_lsb.pop();
+          }
+          break;
+        }
+        case kSb:
+        case kSh:
+        case kSw: {
+          if (rob.next_rob[dest].progress == 0) {
+            if (now_freeze)return;
+            rob.next_rob[dest].progress = 1;
+            break;
+          }
+          rob.next_rob[dest].progress++;
+          //std::cerr << cur.inst.op << " progress: " << rob.next_rob[dest].progress << std::endl;
+          next_freeze = true;
+          if (rob.next_rob[dest].progress == 3) {
+            //在commit时才能修改RAM
+            rob.next_rob[dest].pos = pos;
+            rob.next_rob[dest].value = static_cast<i32>(cur.vk);
+            rob.next_rob[dest].status = kWrite;
+            next_lsb.pop();
+          }
+          break;
+        }
+        default:
+          assert(false);
       }
-      default:
-        assert(false);
     }
   }
 

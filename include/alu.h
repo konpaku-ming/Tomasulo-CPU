@@ -14,8 +14,8 @@ namespace cpu_sim {
 
   class ArithmeticLogicUnit {
   public:
-    AluNode now_alu[kRSSize];
-    AluNode next_alu[kRSSize];
+    AluNode now_alu[kRSSize + 1];
+    AluNode next_alu[kRSSize + 1];
 
     ArithmeticLogicUnit();
 
