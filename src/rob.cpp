@@ -80,7 +80,6 @@ namespace cpu_sim {
         if (rs.next_rs.full())return;
         RSNode rs_node;
         rs_node.inst = cur.inst;
-        if (cur.inst.op == kHalt)std::cerr << "issue HALT" << std::endl;
         //处理rs1
         if (cur.inst.rs1 != -1) {
           const int dep = reg.next_reg[cur.inst.rs1].dep_;
@@ -178,11 +177,7 @@ namespace cpu_sim {
       case kBlt:
       case kBltu:
       case kBne: {
-        //naive.update(cur.inst.pc, cur.value);
-        //two_bits.update(cur.inst.pc, cur.value);
-        //global.update(cur.inst.pc, cur.value);
-        local.update(cur.inst.pc, cur.value);
-        //tournament.update(cur.inst.pc, cur.value);
+        predictor->update(cur.inst.pc, cur.value);
 
         total_predict++;
         if (cur.inst.predict != static_cast<bool>(cur.value)) {

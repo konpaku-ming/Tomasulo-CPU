@@ -42,26 +42,27 @@ namespace cpu_sim {
     Inst inst;
     inst.pc = pc;
     if (code == 0x0FF00513) {
+      //halt instruction
       inst.op = kHalt;
       return inst;
     }
     const u32 op = code & 0x7F; //取低7位
     switch (op) {
-      case 0b0110111U: {
+      case 0b0110111: {
         inst.op = kLui;
         inst.rd = (code >> 7) & 0x1F; //5位
         inst.imm = static_cast<i32>(code & 0xFFFFF000); //imm[31:12]
         break;
       }
 
-      case 0b0010111U: {
+      case 0b0010111: {
         inst.op = kAuipc;
         inst.rd = (code >> 7) & 0x1F; //5位
         inst.imm = static_cast<i32>(code & 0xFFFFF000); //imm[31:12]
         break;
       }
 
-      case 0b1101111U: {
+      case 0b1101111: {
         inst.op = kJal;
         inst.rd = (code >> 7) & 0x1F; //5位
         const u32 imm = (code >> 31 & 1) << 20 | (code >> 12 & 0xFF) << 12 |
@@ -70,7 +71,7 @@ namespace cpu_sim {
         break;
       }
 
-      case 0b1100111U: {
+      case 0b1100111: {
         inst.op = kJalr;
         inst.rd = (code >> 7) & 0x1F; //5位
         inst.rs1 = (code >> 15) & 0x1F; //5位
@@ -78,7 +79,7 @@ namespace cpu_sim {
         break;
       }
 
-      case 0b1100011U: {
+      case 0b1100011: {
         inst.rs1 = code >> 15 & 0x1F;
         inst.rs2 = code >> 20 & 0x1F;
         switch (code >> 12 & 7) {
@@ -139,7 +140,7 @@ namespace cpu_sim {
         break;
       }
 
-      case 0b0100011U: {
+      case 0b0100011: {
         inst.rs1 = code >> 15 & 0x1F;
         inst.rs2 = code >> 20 & 0x1F;
         switch (code >> 12 & 7) {
@@ -157,12 +158,12 @@ namespace cpu_sim {
             std::cerr << "op mismatch" << std::endl;
             assert(false);
         }
-        const u32 imm = (code >> 20 & 0xFE0) | (code >> 7 & 0x1F);
+        const u32 imm = (code >> 25 & 0x7F) << 5 | (code >> 7 & 0x1F);
         inst.imm = sign_extend(imm, 12);
         break;
       }
 
-      case 0b0010011U: {
+      case 0b0010011: {
         inst.rd = (code >> 7) & 0x1F; //5位
         inst.rs1 = code >> 15 & 0x1F;
         inst.imm = sign_extend(code >> 20, 12);
@@ -201,7 +202,7 @@ namespace cpu_sim {
         break;
       }
 
-      case 0b0110011U: {
+      case 0b0110011: {
         inst.rd = (code >> 7) & 0x1F; //5位
         inst.rs1 = code >> 15 & 0x1F;
         inst.rs2 = code >> 20 & 0x1F;

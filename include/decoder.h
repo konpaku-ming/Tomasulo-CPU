@@ -1,5 +1,6 @@
 #ifndef DECODER_H
 #define DECODER_H
+#include "predictor.h"
 
 namespace cpu_sim {
   class Decoder {
@@ -21,5 +22,7 @@ namespace cpu_sim {
   };
 
   extern Decoder decoder;
+
+  extern Predictor *predictor;
 }
 #endif //DECODER_H

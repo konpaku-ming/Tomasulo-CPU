@@ -4,6 +4,12 @@
 #include "../include/predictor.h"
 
 namespace cpu_sim {
+  //Predictor *predictor = &naive;
+  //Predictor *predictor = &two_bits;
+  //Predictor *predictor = &global;
+  Predictor *predictor = &local;
+  //Predictor *predictor = &tournament;
+
   Decoder::Decoder() = default;
 
   Decoder::~Decoder() = default;
@@ -34,12 +40,7 @@ namespace cpu_sim {
       case kBlt:
       case kBltu:
       case kBne:
-        //inst.predict = naive.predict(inst.pc);
-        //inst.predict = two_bits.predict(inst.pc);
-        //inst.predict = global.predict(inst.pc);
-        inst.predict = local.predict(inst.pc);
-        //inst.predict = tournament.predict(inst.pc);
-
+        inst.predict = predictor->predict(inst.pc);
         next_pc = inst.predict ? now_pc + inst.imm : now_pc + 4;
         break;
       case kJalr:

@@ -3,8 +3,6 @@
 namespace cpu_sim {
   NaivePredictor::NaivePredictor() = default;
 
-  NaivePredictor::~NaivePredictor() = default;
-
   bool NaivePredictor::predict(const u32) const {
     return false;
   }
@@ -13,8 +11,6 @@ namespace cpu_sim {
   }
 
   TwoBitsPredictor::TwoBitsPredictor() = default;
-
-  TwoBitsPredictor::~TwoBitsPredictor() = default;
 
   bool TwoBitsPredictor::predict(const u32 pc) const {
     auto hash = pc >> 2;
@@ -36,8 +32,6 @@ namespace cpu_sim {
 
   GlobalPredictor::GlobalPredictor() = default;
 
-  GlobalPredictor::~GlobalPredictor() = default;
-
   bool GlobalPredictor::predict(const u32 pc) const {
     auto hash = pc >> 2;
     hash = hash ^ (hash >> 10) ^ (hash >> 20);
@@ -58,8 +52,6 @@ namespace cpu_sim {
   }
 
   LocalPredictor::LocalPredictor() = default;
-
-  LocalPredictor::~LocalPredictor() = default;
 
   bool LocalPredictor::predict(const u32 pc) const {
     auto hash = pc >> 2;
@@ -100,8 +92,6 @@ namespace cpu_sim {
   }
 
   TournamentPredictor::TournamentPredictor() = default;
-
-  TournamentPredictor::~TournamentPredictor() = default;
 
   bool TournamentPredictor::predict(const u32 pc) const {
     return choice_predictor.prefer(pc) ? global_predictor.predict(pc) : local_predictor.predict(pc);

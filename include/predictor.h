@@ -3,61 +3,62 @@
 #include "utils.h"
 
 namespace cpu_sim {
-  class NaivePredictor {
+  class Predictor {
+  public:
+    virtual ~Predictor() = default;
+
+    virtual bool predict(u32 pc) const = 0;
+
+    virtual void update(u32 pc, int taken) = 0;
+  };
+
+  class NaivePredictor final : public Predictor {
   public:
     NaivePredictor();
 
-    ~NaivePredictor();
+    bool predict(u32 pc) const override;
 
-    bool predict(u32 pc) const;
-
-    void update(u32 pc, int taken);
+    void update(u32 pc, int taken) override;
   };
 
-  class TwoBitsPredictor {
+  class TwoBitsPredictor final : public Predictor {
   public:
-    int log[1024]{};
+    int log[1024] = {};
 
     TwoBitsPredictor();
 
-    ~TwoBitsPredictor();
+    bool predict(u32 pc) const override;
 
-    bool predict(u32 pc) const;
-
-    void update(u32 pc, int taken);
+    void update(u32 pc, int taken) override;
   };
 
-  class GlobalPredictor {
+  class GlobalPredictor final : public Predictor {
   public:
-    int log[1024]{};
+    int log[1024] = {};
     u32 history = 0;
 
     GlobalPredictor();
 
-    ~GlobalPredictor();
+    bool predict(u32 pc) const override;
 
-    bool predict(u32 pc) const;
-
-    void update(u32 pc, int taken);
+    void update(u32 pc, int taken) override;
   };
 
-  class LocalPredictor {
+  class LocalPredictor final : public Predictor {
   public:
-    int log[1024]{};
-    u32 local_history[1024]{};
+    int log[1024] = {};
+    u32 local_history[1024] = {};
 
     LocalPredictor();
 
-    ~LocalPredictor();
+    bool predict(u32 pc) const override;
 
-    bool predict(u32 pc) const;
-
-    void update(u32 pc, int taken);
+    void update(u32 pc, int taken) override;
   };
 
   class ChoicePredictor {
   public:
-    int choice[1024]{};
+    int choice[1024] = {};
 
     ChoicePredictor();
 
@@ -68,7 +69,7 @@ namespace cpu_sim {
     void update(u32 pc, bool local_correct, bool global_correct);
   };
 
-  class TournamentPredictor {
+  class TournamentPredictor : public Predictor {
   public:
     GlobalPredictor global_predictor;
     LocalPredictor local_predictor;
@@ -76,11 +77,9 @@ namespace cpu_sim {
 
     TournamentPredictor();
 
-    ~TournamentPredictor();
+    bool predict(u32 pc) const override;
 
-    bool predict(u32 pc) const;
-
-    void update(u32 pc, int taken);
+    void update(u32 pc, int taken) override;
   };
 
   extern NaivePredictor naive;
